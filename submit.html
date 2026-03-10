@@ -1,1 +1,50 @@
 
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>毕业留言分享站 - 学长学姐的心里话</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="center" style="margin-bottom: 22px;">
+            <img src="图片/校徽.png" alt="上海第二工业大学校徽" class="logo" />
+        </div>
+
+        <div class="cover">
+            <img src="图片/封面.jpg" alt="上海第二工业大学校园风景" class="cover-img" />
+            <p class="cover-caption">金海路校区 · 那些年，我们一起走过的路</p>
+        </div>
+
+        <h1>欢迎来到毕业留言分享站</h1>
+        <p class="intro">
+            这里收集了学长学姐们的毕业寄语、经验分享和心里话。<br />
+            希望能给在校的你们一些温暖和方向！
+        </p>
+
+        <div class="center">
+            <a href="messages.html" class="btn">查看所有留言</a>
+            <a href="submit.html" class="btn btn-secondary">如何投稿</a>
+        </div>
+
+        <h2 class="section-title">最新留言预览</h2>
+        <div id="latest" class="cards">
+            <div class="empty-state">
+                <div class="empty-title">还没有留言</div>
+                <div class="empty-sub">去“如何投稿”写下你的第一条毕业寄语吧。</div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            © 2026 你的学校/专业 | Powered by GitHub Pages
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        window.App?.renderLatest?.({ mountId: "latest", limit: 5 });
+    </script>
+</body>
+</html>
