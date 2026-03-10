@@ -1,5 +1,19 @@
 (() => {
-  const STORAGE_KEY = "grad_messages_v1";
+  // ===== Bmob 配置（已为你填好） =====
+  const BMOB = {
+    appId: "c9b5db9622cd76fa66d1aa41da9214f9",
+    apiKey: "7296a015d22fdb5acb6dc805d370a0b6",
+  };
+
+  const BMOB_BASE = "https://api.bmob.cn/1";
+
+  function bmobHeaders() {
+    return {
+      "X-Bmob-Application-Id": BMOB.appId,
+      "X-Bmob-REST-API-Key": BMOB.apiKey,
+      "Content-Type": "application/json",
+    };
+  }
 
   function safeTrim(v) {
     return String(v ?? "").trim();
@@ -19,25 +33,40 @@
     }
   }
 
-  function loadMessages() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    try {
-      const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr : [];
-    } catch {
-      return [];
-    }
+  async function loadMessagesOnline({ limit = 100 } = {}) {
+    const url = `${BMOB_BASE}/classes/Message?order=-createdAt&limit=${encodeURIComponent(
+      Math.min(200, Math.max(1, Number(limit) || 100))
+    )}`;
+    const res = await fetch(url, {
+      method: "GET",
+      headers: bmobHeaders(),
+    });
+    if (!res.ok) throw new Error("bmob_load_failed");
+    const data = await res.json();
+    const results = Array.isArray(data.results) ? data.results : [];
+    return results.map((r) => ({
+      id: r.objectId || "",
+      major: safeTrim(r.major),
+      studentId: safeTrim(r.studentId),
+      avatarUrl: safeTrim(r.avatarUrl),
+      content: safeTrim(r.content),
+      createdAt: r.createdAt ? r.createdAt : nowIso(),
+    }));
   }
 
-  function saveMessages(list) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  }
-
-  function addMessage(msg) {
-    const list = loadMessages();
-    list.unshift(msg);
-    saveMessages(list);
+  async function addMessageOnline({ major, studentId, content, avatarDataUrl }) {
+    const body = {
+      major: safeTrim(major),
+      studentId: safeTrim(studentId),
+      content: safeTrim(content),
+      avatarUrl: safeTrim(avatarDataUrl),
+    };
+    const res = await fetch(`${BMOB_BASE}/classes/Message`, {
+      method: "POST",
+      headers: bmobHeaders(),
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error("bmob_save_failed");
   }
 
   function defaultAvatarSvgDataUrl() {
@@ -63,7 +92,7 @@
     const avatar = document.createElement("img");
     avatar.className = "avatar";
     avatar.alt = "头像";
-    avatar.src = msg.avatarDataUrl || defaultAvatarSvgDataUrl();
+    avatar.src = msg.avatarUrl || defaultAvatarSvgDataUrl();
     head.appendChild(avatar);
 
     const meta = document.createElement("div");
@@ -103,43 +132,51 @@
     return card;
   }
 
-  function renderMessages({ mountId }) {
+  async function renderMessages({ mountId }) {
     const mount = document.getElementById(mountId);
     if (!mount) return;
+    mount.innerHTML = `<div class="empty-state"><div class="empty-title">正在加载...</div><div class="empty-sub">正在从云端获取留言。</div></div>`;
 
-    const list = loadMessages();
-    mount.innerHTML = "";
+    try {
+      const list = await loadMessagesOnline({ limit: 100 });
+      mount.innerHTML = "";
 
-    if (!list.length) {
-      const empty = document.createElement("div");
-      empty.className = "empty-state";
-      empty.innerHTML = `<div class="empty-title">还没有留言</div><div class="empty-sub">去“如何投稿”写下你的第一条毕业寄语吧。</div>`;
-      mount.appendChild(empty);
-      return;
-    }
+      if (!list.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.innerHTML = `<div class="empty-title">还没有留言</div><div class="empty-sub">去“如何投稿”写下你的第一条毕业寄语吧。</div>`;
+        mount.appendChild(empty);
+        return;
+      }
 
-    for (const msg of list) {
-      mount.appendChild(createCard(msg));
+      for (const msg of list) mount.appendChild(createCard(msg));
+    } catch (e) {
+      console.error(e);
+      mount.innerHTML = `<div class="empty-state"><div class="empty-title">加载失败</div><div class="empty-sub">请检查 LeanCloud 配置或稍后刷新重试。</div></div>`;
     }
   }
 
-  function renderLatest({ mountId, limit = 5 }) {
+  async function renderLatest({ mountId, limit = 5 }) {
     const mount = document.getElementById(mountId);
     if (!mount) return;
+    mount.innerHTML = `<div class="empty-state"><div class="empty-title">正在加载...</div><div class="empty-sub">正在从云端获取留言。</div></div>`;
 
-    const list = loadMessages().slice(0, Math.max(1, Number(limit) || 5));
-    mount.innerHTML = "";
+    try {
+      const list = await loadMessagesOnline({ limit: Math.max(1, Number(limit) || 5) });
+      mount.innerHTML = "";
 
-    if (!list.length) {
-      const empty = document.createElement("div");
-      empty.className = "empty-state";
-      empty.innerHTML = `<div class="empty-title">还没有留言</div><div class="empty-sub">去“如何投稿”写下你的第一条毕业寄语吧。</div>`;
-      mount.appendChild(empty);
-      return;
-    }
+      if (!list.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.innerHTML = `<div class="empty-title">还没有留言</div><div class="empty-sub">去“如何投稿”写下你的第一条毕业寄语吧。</div>`;
+        mount.appendChild(empty);
+        return;
+      }
 
-    for (const msg of list) {
-      mount.appendChild(createCard(msg));
+      for (const msg of list) mount.appendChild(createCard(msg));
+    } catch (e) {
+      console.error(e);
+      mount.innerHTML = `<div class="empty-state"><div class="empty-title">加载失败</div><div class="empty-sub">请检查 LeanCloud 配置或稍后刷新重试。</div></div>`;
     }
   }
 
@@ -193,7 +230,7 @@
         return;
       }
       if (file.size > 800 * 1024) {
-        alert("头像图片建议小于 800KB（否则本地存储可能装不下）。");
+        alert("头像图片建议小于 800KB（否则上传会比较慢）。");
       }
       try {
         avatarDataUrl = await readFileAsDataUrl(file);
@@ -222,7 +259,7 @@
 
     backBtn?.addEventListener("click", () => setStep(1));
 
-    submitBtn?.addEventListener("click", () => {
+    submitBtn?.addEventListener("click", async () => {
       const major = safeTrim(majorEl?.value);
       const studentId = safeTrim(studentIdEl?.value);
       const content = safeTrim(contentEl?.value);
@@ -233,20 +270,17 @@
         return;
       }
 
-      const msg = {
-        id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
-        major,
-        studentId,
-        avatarDataUrl,
-        content,
-        createdAt: nowIso(),
-      };
-
       try {
-        addMessage(msg);
+        submitBtn.disabled = true;
+        submitBtn.textContent = "正在提交...";
+        await addMessageOnline({ major, studentId, content, avatarDataUrl });
       } catch (e) {
-        alert("保存失败：可能是头像太大导致本地存储满了。请换更小的头像或先不上传头像再试。");
+        console.error(e);
+        alert("提交失败：请检查网络或 LeanCloud 配置（appId/appKey/serverURL），然后重试。");
         return;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "提交留言";
       }
 
       window.location.href = "messages.html";
@@ -258,18 +292,9 @@
     if (!mount) return;
 
     renderMessages({ mountId: "messages" });
-
-    const clearBtn = document.getElementById("clearBtn");
-    clearBtn?.addEventListener("click", () => {
-      if (!confirm("确定清空本机保存的所有留言吗？此操作无法恢复。")) return;
-      localStorage.removeItem(STORAGE_KEY);
-      renderMessages({ mountId: "messages" });
-    });
   }
 
   window.App = {
-    loadMessages,
-    addMessage,
     renderLatest,
     renderMessages,
     initSubmitPage,
