@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -5,31 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>毕业留言分享站 - 学长学姐的心里话</title>
     <link rel="stylesheet" href="styles.css" />
-    <style>
-        body { font-family: "Microsoft YaHei", sans-serif; margin: 0; padding: 40px; background: #f8f9fa; color: #333; line-height: 1.6; }
-        body { font-family: "Microsoft YaHei", sans-serif; margin: 0; padding: 40px; background: #b5e3e5; color: #333; line-height: 1.6; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; text-align: center; }
-        .intro { font-size: 1.2em; text-align: center; margin: 30px 0; }
-        .btn { display: inline-block; background: #3498db; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin: 10px; }
-        .btn:hover { background: #2980b9; }
-        body {
-    background: url('images/封面.jpg') no-repeat center center fixed;
-    background-size: cover;
-    background-attachment: fixed;
-}
-.container {
-    background: rgba(255, 255, 255, 0.92);  /* 半透明白底，让文字清晰 */
-    backdrop-filter: blur(5px);  /* 毛玻璃效果，现代感 */
-}
-    </style>
 </head>
 <body>
-<div class="container">
-<div style="text-align: center; margin-bottom: 30px;">
+    <div class="container">
         <div class="center" style="margin-bottom: 22px;">
-             <img src="images/校徽.png" alt="上海第二工业大学校徽" class="logo" />
+            <img src="图片/校徽.png" alt="上海第二工业大学校徽" class="logo" />
         </div>
+
+        <div class="cover">
+            <img src="图片/封面.jpg" alt="上海第二工业大学校园风景" class="cover-img" />
+            <p class="cover-caption">金海路校区 · 那些年，我们一起走过的路</p>
+        </div>
+
         <h1>欢迎来到毕业留言分享站</h1>
         <p class="intro">
             这里收集了学长学姐们的毕业寄语、经验分享和心里话。<br />
@@ -50,17 +38,16 @@
         </div>
 
         <footer class="footer">
-           感谢您的投送 | Thanks
+            © 2026 你的学校/专业 | Powered by GitHub Pages
         </footer>
     </div>
 
-    <script src="supabase.js"></script>
+    <script src="app.js"></script>
     <script>
         window.App?.renderLatest?.({ mountId: "latest", limit: 5 });
     </script>
 </body>
 </html>
-
 
 
 
