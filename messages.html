@@ -27,36 +27,42 @@
         .message p { margin: 8px 0; }
         .meta { color: #7f8c8d; font-size: 0.95em; margin-top: 12px; }
         form { margin-top: 40px; }
-        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; }
-        button { background: #3498db; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; }
+        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #3498db; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1.1em; }
         button:hover { background: #2980b9; }
+        #status { color: red; margin: 10px 0; }
     </style>
+    <!-- 正确加载 Supabase JS 库（CDN） -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <div class="container">
         <h1>学长学姐毕业留言</h1>
         <a href="index.html" class="back">← 返回首页</a>
+
+        <!-- 你的静态留言保持不变 -->
         <div class="message">
             <img src="images/张学姐.jpg" alt="2022届 张学姐" style="float: left; margin: 0 20px 10px 0; width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 2px solid #3498db;">
             <h3>2022届 - 张学姐（日语专业）</h3>
             <p>大学不是终点，而是起点。别只盯着分数，多去社团、实习、旅行，真正让你成长的往往是课外那些“没用”的事。毕业后最怀念的，就是和室友熬夜聊天的日子。珍惜当下！</p>
             <div class="meta">投稿时间：2025年6月</div>
         </div>
-       <div class="message">
+        <div class="message">
             <img src="images/胡欣鑫.jpg" alt="2022届 胡学长" style="float: left; margin: 0 20px 10px 0; width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 2px solid #3498db;">
             <h3>2022届 - 胡学长（自动化）</h3>
             <p>找工作别只刷LeetCode，也要刷人脉。去参加行业Meetup、加校友群、主动联系前辈聊天。很多offer不是投简历投出来的，而是聊出来的。加油，offer会有的！</p>
             <div class="meta">投稿时间：2024年7月</div>
         </div>
-
         <div class="message">
-            <img src="images/藏嘉乐.jpg" alt="2022届 藏学长" style="float: left; margin: 0 20px 10px 0; width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 2px solid #3498db;">
+            <img src="images/藏嘉乐.jpg" alt="2022届 藏学长" style="float: left; margin: 0 20px 10px 10px 0; width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 2px solid #3498db;">
             <h3>2022届 - 藏学长（自动化专业）</h3>
             <p>考研/考公/出国/就业，每条路都有苦，但选自己内心真正想走的路就不会后悔。我选择了工作，现在每天都在学新东西，感觉比读研更充实。你们也要勇敢选择哦～</p>
             <div class="meta">投稿时间：2026年3月</div>
         </div>
+
+        <!-- 动态区域 -->
         <div id="messages-list"></div>
+        <div id="status"></div> <!-- 显示加载/错误状态 -->
 
         <h2>投稿你的毕业寄语</h2>
         <form id="message-form">
@@ -72,16 +78,25 @@
     </div>
 
     <script>
-        // === Supabase 配置（替换成你自己的！） ===
-        const SUPABASE_URL = 'https://gpdnhyonmvklhhhnsrpu.supabase.co';    
-        const SUPABASE_ANON_KEY = 'sb_publishable_E3oR3sfXE_yXzSq7CqQcpw_SP_O5RRU';  
+        // === Supabase 配置（替换成你的真实值！） ===
+        const SUPABASE_URL = 'https://gpdnhyonmvklhhhnsrpu.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_E3oR3sfXE_yXzSq7CqQcpw_SP_O5RRU'; 
 
         const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const messagesList = document.getElementById('messages-list');
+        const statusDiv = document.getElementById('status');
         const form = document.getElementById('message-form');
 
+        // 显示状态消息
+        function showStatus(msg, color = 'red') {
+            statusDiv.textContent = msg;
+            statusDiv.style.color = color;
+        }
+
+        // 加载留言
         async function loadMessages() {
+            showStatus('正在加载留言...');
             const { data, error } = await supabase
                 .from('messages')
                 .select('*')
@@ -89,11 +104,17 @@
 
             if (error) {
                 console.error('加载失败', error);
-                messagesList.innerHTML = '<p style="color:red;">加载留言失败，请稍后重试</p>';
+                showStatus('加载留言失败：' + error.message);
                 return;
             }
 
-            messagesList.innerHTML = '';  // 清空再添加
+            messagesList.innerHTML = '';
+            if (data.length === 0) {
+                showStatus('暂无动态留言，欢迎投稿！', 'green');
+            } else {
+                showStatus('留言加载完成', 'green');
+            }
+
             data.forEach(msg => {
                 const div = document.createElement('div');
                 div.className = 'message';
@@ -106,7 +127,7 @@
             });
         }
 
-        // 实时订阅新插入的留言
+        // 实时订阅
         supabase
             .channel('messages-changes')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
@@ -118,34 +139,35 @@
                     <p>${msg.留言}</p>
                     <small>${new Date(msg.created_at).toLocaleString('zh-CN')}</small>
                 `;
-                messagesList.prepend(div);  // 新留言放最上面
+                messagesList.prepend(div);
+                showStatus('有新留言已添加！', 'green');
             })
             .subscribe();
 
-        // 表单提交
+        // 提交
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            showStatus('正在提交...');
 
             const newMessage = {
                 届别: document.getElementById('届别').value.trim(),
                 姓名: document.getElementById('姓名').value.trim(),
                 专业: document.getElementById('专业').value.trim(),
                 留言: document.getElementById('留言').value.trim(),
-                approved: false  // 如果需要审核，初始 false
+                approved: false
             };
 
             const { error } = await supabase.from('messages').insert([newMessage]);
 
             if (error) {
-                alert('提交失败：' + error.message);
-                console.error(error);
+                showStatus('提交失败：' + error.message);
             } else {
-                alert('投稿成功！审核后会显示～');
+                showStatus('投稿成功！审核后显示', 'green');
                 form.reset();
             }
         });
 
-        // 页面加载时立即拉取留言
+        // 启动
         loadMessages();
     </script>
 </body>
