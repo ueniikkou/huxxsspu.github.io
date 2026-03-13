@@ -7,15 +7,99 @@
     <style>
         body { font-family: "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif; margin: 0; padding: 20px; background: #f0f4f8; color: #333; line-height: 1.7; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 6px 25px rgba(0,0,0,0.08); }
-        h1 { color: #1a3c5e; text-align: center; margin-bottom: 10px; }
+        h1 { color: #fcef9b; text-align: center; margin-bottom: 10px; }
         .back { display: inline-block; margin: 20px 0 40px; color: #3498db; text-decoration: none; font-weight: bold; }
         .back:hover { text-decoration: underline; }
         .message { border-left: 5px solid #3498db; padding: 20px 25px; margin: 25px 0; background: #f8fbff; border-radius: 0 8px 8px 0; }
         .message h3 { margin: 0 0 10px; color: #2c3e50; font-size: 1.3em; }
         .message p { margin: 8px 0; }
         .meta { color: #7f8c8d; font-size: 0.95em; margin-top: 12px; }
+<div id="messages-list"></div>  <!-- 这里动态显示留言 -->
+
+<h2>投稿你的毕业寄语</h2>
+<form id="message-form">
+  <input type="text" id="届别" placeholder="届别（如 2025届）" required>
+  <input type="text" id="姓名" placeholder="姓名 / 匿名" required>
+  <input type="text" id="专业" placeholder="专业">
+  <textarea id="留言" placeholder="在这里写你的寄语..." required></textarea>
+  <button type="submit">提交</button>
+</form>
+
+<script>
+  const messagesList = document.getElementById('messages-list');
+  const form = document.getElementById('message-form');
+
+  // 加载现有留言
+  async function loadMessages() {
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .order('created_at', { ascending: false });  // 最新在上
+
+    if (error) {
+      console.error('加载失败', error);
+      return;
+    }
+
+    messagesList.innerHTML = '';
+    data.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = 'message';
+      div.innerHTML = `
+        <h3>${msg.届别} - ${msg.姓名}（${msg.专业 || '未填'}）</h3>
+        <p>${msg.留言}</p>
+        <small>${new Date(msg.created_at).toLocaleString()}</small>
+      `;
+      messagesList.appendChild(div);
+    });
+  }
+
+  // 实时订阅新留言
+  supabase
+    .channel('messages-changes')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
+      const msg = payload.new;
+      const div = document.createElement('div');
+      div.className = 'message';
+      div.innerHTML = `
+        <h3>${msg.届别} - ${msg.姓名}（${msg.专业 || '未填'}）</h3>
+        <p>${msg.留言}</p>
+        <small>${new Date(msg.created_at).toLocaleString()}</small>
+      `;
+      messagesList.prepend(div);  // 新留言插到最上面
+    })
+    .subscribe();
+
+  // 提交表单
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const newMessage = {
+      届别: document.getElementById('届别').value,
+      姓名: document.getElementById('姓名').value,
+      专业: document.getElementById('专业').value,
+      留言: document.getElementById('留言').value,
+      approved: false  // 如果需要审核
+    };
+
+    const { error } = await supabase.from('messages').insert([newMessage]);
+
+    if (error) {
+      alert('提交失败：' + error.message);
+    } else {
+      alert('投稿成功！审核后显示～');
+      form.reset();
+    }
+  });
+
+  // 页面加载时拉取一次
+  loadMessages();
+</script>
     </style>
-</head>
+</head> 
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>  
+
 <body>
     <div class="container">
         <h1>学长学姐毕业留言</h1>
@@ -44,9 +128,9 @@
 <h3>如何投稿？</h3>
 <p>欢迎学长学姐把你的毕业寄语发给我！微信：你的微信号 / 邮箱：你的邮箱@qq.com<br>格式建议：届别 - 姓名（专业） + 留言内容 + 时间</p>
 </body>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase.js"></script>  
+  
 </html>
+
 
 
 
