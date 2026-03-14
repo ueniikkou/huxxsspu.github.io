@@ -1,174 +1,68 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>所有毕业留言 - 学长学姐的心里话</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>毕业留言分享站 - 学长学姐的心里话</title>
+    <link rel="stylesheet" href="styles.css" />
     <style>
-        body { 
-            font-family: "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif; 
-            margin: 0; padding: 20px; 
-            background: #b5e3e5; 
-            color: #333; line-height: 1.7; 
-        }
-        .container { 
-            max-width: 900px; margin: 0 auto; 
-            background: white; padding: 30px; 
-            border-radius: 12px; box-shadow: 0 6px 25px rgba(0,0,0,0.08); 
-        }
-        h1 { color: #1a3c5e; text-align: center; margin-bottom: 10px; }
-        .back { display: inline-block; margin: 20px 0 40px; color: #3498db; text-decoration: none; font-weight: bold; }
-        .back:hover { text-decoration: underline; }
-        .message { 
-            border-left: 5px solid #3498db; padding: 20px 25px; margin: 25px 0; 
-            background: #f8fbff; border-radius: 0 8px 8px 0; 
-        }
-        .message h3 { margin: 0 0 10px; color: #2c3e50; font-size: 1.3em; }
-        .message p { margin: 8px 0; }
-        .meta { color: #7f8c8d; font-size: 0.95em; margin-top: 12px; }
-        form { margin-top: 40px; }
-        input, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { background: #3498db; color: white; padding: 12px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1.1em; }
-        button:hover { background: #2980b9; }
-        #status { color: red; margin: 10px 0; }
+        body { font-family: "Microsoft YaHei", sans-serif; margin: 0; padding: 40px; background: #f8f9fa; color: #333; line-height: 1.6; }
+        body { font-family: "Microsoft YaHei", sans-serif; margin: 0; padding: 40px; background: #b5e3e5; color: #333; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; }
+        .intro { font-size: 1.2em; text-align: center; margin: 30px 0; }
+        .btn { display: inline-block; background: #3498db; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin: 10px; }
+        .btn:hover { background: #2980b9; }
+        body {
+    background: url('images/封面.jpg') no-repeat center center fixed;
+    background-size: cover;
+    background-attachment: fixed;
+}
+.container {
+    background: rgba(255, 255, 255, 0.92);  /* 半透明白底，让文字清晰 */
+    backdrop-filter: blur(5px);  /* 毛玻璃效果，现代感 */
+}
     </style>
-    <!-- 正确加载 Supabase JS 库（CDN） -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>学长学姐毕业留言</h1>
-        <a href="index.html" class="back">← 返回首页</a>
+<div class="container">
+<div style="text-align: center; margin-bottom: 30px;">
+        <div class="center" style="margin-bottom: 22px;">
+             <img src="images/校徽.png" alt="上海第二工业大学校徽" class="logo" />
+        </div>
+        <h1>欢迎来到毕业留言分享站</h1>
+        <p class="intro">
+            这里收集了学长学姐们的毕业寄语、经验分享和心里话。<br />
+            希望能给在校的你们一些温暖和方向！
+        </p>
 
-        <!-- 你的静态留言保持不变 -->
-        <div class="message">
-            <img src="images/张学姐.jpg" alt="2022届 张学姐" style="float: left; margin: 0 20px 10px 0; width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 2px solid #3498db;">
-            <h3>2022届 - 张学姐（日语专业）</h3>
-            <p>大学不是终点，而是起点。别只盯着分数，多去社团、实习、旅行，真正让你成长的往往是课外那些“没用”的事。毕业后最怀念的，就是和室友熬夜聊天的日子。珍惜当下！</p>
-            <div class="meta">投稿时间：2025年6月</div>
-        </div>
-        <div class="message">
-            <img src="images/胡欣鑫.jpg" alt="2022届 胡学长" style="float: left; margin: 0 20px 10px 0; width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 2px solid #3498db;">
-            <h3>2022届 - 胡学长（自动化）</h3>
-            <p>找工作别只刷LeetCode，也要刷人脉。去参加行业Meetup、加校友群、主动联系前辈聊天。很多offer不是投简历投出来的，而是聊出来的。加油，offer会有的！</p>
-            <div class="meta">投稿时间：2024年7月</div>
-        </div>
-        <div class="message">
-            <img src="images/藏嘉乐.jpg" alt="2022届 藏学长" style="float: left; margin: 0 20px 10px 10px 0; width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 2px solid #3498db;">
-            <h3>2022届 - 藏学长（自动化专业）</h3>
-            <p>考研/考公/出国/就业，每条路都有苦，但选自己内心真正想走的路就不会后悔。我选择了工作，现在每天都在学新东西，感觉比读研更充实。你们也要勇敢选择哦～</p>
-            <div class="meta">投稿时间：2026年3月</div>
+        <div class="center">
+            <a href="messages.html" class="btn">查看所有留言</a>
+            <a href="submit.html" class="btn btn-secondary">如何投稿</a>
         </div>
 
-        <!-- 动态区域 -->
-        <div id="messages-list"></div>
-        <div id="status"></div> <!-- 显示加载/错误状态 -->
+        <h2 class="section-title">最新留言预览</h2>
+        <div id="latest" class="cards">
+            <div class="empty-state">
+                <div class="empty-title">还没有留言</div>
+                <div class="empty-sub">去“如何投稿”写下你的第一条毕业寄语吧。</div>
+            </div>
+        </div>
 
-        <h2>投稿你的毕业寄语</h2>
-        <form id="message-form">
-            <input type="text" id="届别" placeholder="届别（如 2025届）" required>
-            <input type="text" id="姓名" placeholder="姓名 / 匿名" required>
-            <input type="text" id="专业" placeholder="专业">
-            <textarea id="留言" placeholder="在这里写你的寄语..." required rows="5"></textarea>
-            <button type="submit">提交</button>
-        </form>
-
-        <h3>如何投稿？</h3>
-        <p>欢迎学长学姐把你的毕业寄语发给我！微信：你的微信号 / 邮箱：你的邮箱@qq.com<br>格式建议：届别 - 姓名（专业） + 留言内容 + 时间</p>
+        <footer class="footer">
+           感谢您的投送 | Thanks
+        </footer>
     </div>
 
+    <script src="app.js"></script>
     <script>
-        // === Supabase 配置（替换成你的真实值！） ===
-        const SUPABASE_URL = 'https://gpdnhyonmvklhhhnsrpu.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwZG5oeW9ubXZrbGhoaG5zcnB1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzOTE2MjcsImV4cCI6MjA4ODk2NzYyN30.sc2qQRFtQhJFuSXStqOmByCv-VZzu_0YzvYLHVLcphs'; 
-
-        const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        const messagesList = document.getElementById('messages-list');
-        const statusDiv = document.getElementById('status');
-        const form = document.getElementById('message-form');
-
-        // 显示状态消息
-        function showStatus(msg, color = 'red') {
-            statusDiv.textContent = msg;
-            statusDiv.style.color = color;
-        }
-
-        // 加载留言
-        async function loadMessages() {
-            showStatus('正在加载留言...');
-            const { data, error } = await supabase
-                .from('messages')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error('加载失败', error);
-                showStatus('加载留言失败：' + error.message);
-                return;
-            }
-
-            messagesList.innerHTML = '';
-            if (data.length === 0) {
-                showStatus('暂无动态留言，欢迎投稿！', 'green');
-            } else {
-                showStatus('留言加载完成', 'green');
-            }
-
-            data.forEach(msg => {
-                const div = document.createElement('div');
-                div.className = 'message';
-                div.innerHTML = `
-                    <h3>${msg.届别} - ${msg.姓名}（${msg.专业 || '未填'}）</h3>
-                    <p>${msg.留言}</p>
-                    <small>${new Date(msg.created_at).toLocaleString('zh-CN')}</small>
-                `;
-                messagesList.appendChild(div);
-            });
-        }
-
-        // 实时订阅
-        supabase
-            .channel('messages-changes')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, payload => {
-                const msg = payload.new;
-                const div = document.createElement('div');
-                div.className = 'message';
-                div.innerHTML = `
-                    <h3>${msg.届别} - ${msg.姓名}（${msg.专业 || '未填'}）</h3>
-                    <p>${msg.留言}</p>
-                    <small>${new Date(msg.created_at).toLocaleString('zh-CN')}</small>
-                `;
-                messagesList.prepend(div);
-                showStatus('有新留言已添加！', 'green');
-            })
-            .subscribe();
-
-        // 提交
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            showStatus('正在提交...');
-
-            const newMessage = {
-                届别: document.getElementById('届别').value.trim(),
-                姓名: document.getElementById('姓名').value.trim(),
-                专业: document.getElementById('专业').value.trim(),
-                留言: document.getElementById('留言').value.trim(),
-                approved: false
-            };
-
-            const { error } = await supabase.from('messages').insert([newMessage]);
-
-            if (error) {
-                showStatus('提交失败：' + error.message);
-            } else {
-                showStatus('投稿成功！审核后显示', 'green');
-                form.reset();
-            }
-        });
-
-        // 启动
-        loadMessages();
+        window.App?.renderLatest?.({ mountId: "latest", limit: 5 });
     </script>
 </body>
 </html>
+
+
+
+
+
+
